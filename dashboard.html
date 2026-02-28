@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRISM Dashboard - Real-Time Analytics</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=6">
+
+    <style>
+        .stat-card-dashboard {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px var(--shadow-color);
+        }
+
+        .stat-card-dashboard:hover {
+            background: var(--result-bg);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px var(--shadow-color);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label-dash {
+            color: var(--text-custom-subtle);
+            font-size: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid main-container">
+        <!-- Header -->
+        <!-- Navigation Bar -->
+        <nav class="navbar navbar-expand-lg navbar-light fixed-top glass-card mx-3 mt-3" style="border-radius: 15px;">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold fs-3" href="/">
+                    <span class="shield-icon" style="font-size: 1.8rem;">🛡️</span>
+                    <span class="text-gradient">PRISM</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto align-items-center fw-semibold">
+                        <li class="nav-item mx-1">
+                            <a class="nav-link" href="/">Scanner</a>
+                        </li>
+                        <li class="nav-item mx-1">
+                            <a class="nav-link active" href="/dashboard">Dashboard</a>
+                        </li>
+                        <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
+                            <div class="status-indicator me-3 d-none d-lg-flex">
+                                <span class="status-dot"></span> System Active
+                            </div>
+                        </li>
+                        <li class="nav-item mt-2 mt-lg-0">
+                            <button id="darkModeToggle"
+                                class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center"
+                                style="width: 32px; height: 32px; border: 1px solid var(--card-border);">
+                                <i class="bi bi-moon-fill" id="themeIcon"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Spacer for fixed navbar -->
+        <div style="height: 100px;"></div>
+
+        <!-- Page Header & Banner -->
+        <header class="py-4 mb-4 position-relative">
+            <div class="floating-bg"></div>
+            <div class="header-content p-4 z-10 position-relative">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-0">
+                    <div>
+                        <h1 class="display-5 fw-bold mb-2">
+                            <span class="text-gradient">Real-Time Analytics</span>
+                        </h1>
+                        <p class="lead mb-0 text-custom-subtle" style="font-size: 1.1rem;">Live monitoring of scam
+                            detection activities across 22 Indian languages and 100+ foreign languages.</p>
+                    </div>
+                </div>
+
+                <!-- Threat Level Card -->
+                <div
+                    class="threat-level-card p-3 d-flex align-items-center justify-content-center mt-4 mb-2 hover-lift shadow-sm">
+                    <i id="threatLevelIconTop"
+                        class="bi bi-exclamation-triangle-fill text-warning fs-3 me-3 badge-pulse"></i>
+                    <h4 class="mb-0 fw-bold me-2" style="color: var(--text-color);">Threat Level Today:</h4>
+                    <span id="threatLevelTextTop" class="fs-4 fw-bolder text-warning">MODERATE</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Top Analytics Row (Speedometer & Keywords) -->
+        <div class="row mb-4">
+            <!-- Risk Gauge -->
+            <div class="col-md-4 mb-3">
+                <div class="card glass-card h-100 hover-lift">
+                    <div class="card-body p-4 text-center d-flex flex-column justify-content-center">
+                        <h3 class="h5 mb-4 fw-bold">Current Global Risk</h3>
+                        <div class="speedometer-container my-3">
+                            <div class="speedometer-bg"></div>
+                            <div class="speedometer-needle" id="globalRiskNeedle"
+                                style="transform: translateX(-50%) rotate(-90deg);"></div>
+                            <div class="speedometer-label text-success mt-4" id="globalRiskLabel">LOW</div>
+                        </div>
+                        <div class="small fw-medium mt-1 mb-0" id="globalRiskSource"
+                            style="color: var(--text-color); opacity: 0.7;">Loading details...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Detected Keywords -->
+            <div class="col-md-8 mb-3">
+                <div class="card glass-card h-100 hover-lift">
+                    <div class="card-body p-4">
+                        <h3 class="h5 mb-4 fw-bold"><i class="bi bi-shield-exclamation text-danger me-2"></i> Top Risk
+                            Indicators</h3>
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                            <span class="badge badge-keyword fs-6 py-2 px-3">urgency</span>
+                            <span class="badge badge-keyword fs-6 py-2 px-3">verify your account</span>
+                            <span class="badge badge-keyword fs-6 py-2 px-3">click here</span>
+                            <span class="badge badge-keyword fs-6 py-2 px-3">account suspended</span>
+                            <span class="badge badge-keyword fs-6 py-2 px-3">limited time offer</span>
+                            <span class="badge badge-keyword fs-6 py-2 px-3 border-0"
+                                style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);">WINNER</span>
+                            <span class="badge badge-keyword fs-6 py-2 px-3 border-0"
+                                style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);">Aadhaar
+                                link</span>
+                        </div>
+                        <div
+                            class="mt-4 pt-3 border-top border-custom-subtle border-opacity-25 small text-custom-subtle fw-medium">
+                            <i class="bi bi-info-circle me-1"></i> These keywords are appearing in 65% of all flagged
+                            scams in the last 24 hours.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="stat-card-dashboard">
+                    <div class="stat-number" id="totalScans">0</div>
+                    <div class="stat-label-dash">Total Scans</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="stat-card-dashboard">
+                    <div class="stat-number" id="scamsDetected">0</div>
+                    <div class="stat-label-dash">Scams Detected</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="stat-card-dashboard">
+                    <div class="stat-number" id="urlsScanned">0</div>
+                    <div class="stat-label-dash">URLs Scanned</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="stat-card-dashboard">
+                    <div class="stat-number" id="imagesProcessed">0</div>
+                    <div class="stat-label-dash">Images Processed</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <!-- Language Distribution -->
+            <div class="col-md-6 mb-4">
+                <div class="card glass-card">
+                    <div class="card-body p-4">
+                        <h3 class="h5 mb-4">🌐 Language Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="languageChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Level Distribution -->
+            <div class="col-md-6 mb-4">
+                <div class="card glass-card">
+                    <div class="card-body p-4">
+                        <h3 class="h5 mb-4">⚠️ Risk Level Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="riskChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trend Chart -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card glass-card hover-lift">
+                    <div class="card-body p-4">
+                        <div
+                            class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-4">
+                            <h3 class="h5 mb-3 mb-sm-0 fw-bold">📉 Scams Detected Over Time</h3>
+                            <select id="trendTimeRange" class="form-select w-auto bg-transparent border-secondary"
+                                style="border-radius: 12px; color: var(--text-color);">
+                                <option value="3">Last 3 Days</option>
+                                <option value="7" selected>Last 7 Days</option>
+                                <option value="14">Last 14 Days</option>
+                                <option value="30">Last 30 Days</option>
+                            </select>
+                        </div>
+                        <div class="chart-container" style="height: 350px;">
+                            <canvas id="scamsTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trending Patterns -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card glass-card">
+                    <div class="card-body p-4">
+                        <h3 class="h5 mb-4">📈 Trending Patterns (Last 24 Hours)</h3>
+                        <div id="trendingPatterns" class="row">
+                            <div class="col-12 text-center text-custom-subtle">
+                                <p>Loading patterns...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card glass-card">
+                    <div class="card-body p-4">
+                        <h3 class="h5 mb-4">🕐 Recent Activity</h3>
+                        <div id="recentReports" style="max-height: 400px; overflow-y: auto;">
+                            <p class="text-custom-subtle">Loading recent scans...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center py-4">
+            <p class="mb-0">🛡️ PRISM - Advanced Scam Detection System</p>
+            <p class="small opacity-75">Auto-refreshes every 30 seconds</p>
+        </footer>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Dashboard Script -->
+    <script>
+        let languageChart = null;
+        let riskChart = null;
+
+        // Load dashboard data
+        async function loadDashboard() {
+            try {
+                // Load statistics
+                const statsResponse = await fetch('/api/statistics');
+                const stats = await statsResponse.json();
+
+                document.getElementById('totalScans').textContent = stats.total_scans || 0;
+                document.getElementById('scamsDetected').textContent = stats.total_scams_detected || 0;
+                document.getElementById('urlsScanned').textContent = stats.total_urls_scanned || 0;
+                document.getElementById('imagesProcessed').textContent = stats.total_images_processed || 0;
+
+                // Load language distribution
+                const langResponse = await fetch('/api/language-distribution');
+                const langData = await langResponse.json();
+                updateLanguageChart(langData);
+
+                // Load risk distribution
+                const riskResponse = await fetch('/api/risk-distribution');
+                const riskData = await riskResponse.json();
+                updateRiskChart(riskData);
+
+                // Load trending patterns
+                const patternsResponse = await fetch('/api/trending-patterns');
+                const patterns = await patternsResponse.json();
+                updateTrendingPatterns(patterns);
+
+                // Load recent reports
+                const reportsResponse = await fetch('/api/recent-reports?limit=10');
+                const reports = await reportsResponse.json();
+                updateRecentReports(reports);
+
+                // Load global risk from new API
+                try {
+                    const globalRiskRes = await fetch('/api/global-risk');
+                    const globalRiskData = await globalRiskRes.json();
+                    updateGlobalRisk(globalRiskData.risk_score, globalRiskData.threat_level, globalRiskData.source);
+                } catch (e) {
+                    console.error("Failed to load global risk:", e);
+                }
+
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        function updateLanguageChart(data) {
+            const ctx = document.getElementById('languageChart').getContext('2d');
+
+            if (languageChart) {
+                languageChart.destroy();
+            }
+
+            const labels = Object.keys(data);
+            const values = Object.values(data);
+
+            languageChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: [
+                            '#06b6d4',
+                            '#0891b2',
+                            '#ec4899',
+                            '#f43f5e',
+                            '#7c3aed',
+                            '#a855f7',
+                            '#10b981',
+                            '#f59e0b'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: 'rgba(150, 150, 150, 0.8)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateRiskChart(data) {
+            const ctx = document.getElementById('riskChart').getContext('2d');
+
+            if (riskChart) {
+                riskChart.destroy();
+            }
+
+            const labels = Object.keys(data);
+            const values = Object.values(data);
+
+            riskChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Number of Scans',
+                        data: values,
+                        backgroundColor: [
+                            '#10b981',  // Safe - green
+                            '#f59e0b',  // Suspicious - orange
+                            '#ef4444'   // Scam - red
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: 'rgba(150, 150, 150, 0.8)' },
+                            grid: { color: 'rgba(150, 150, 150, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: 'rgba(150, 150, 150, 0.8)' },
+                            grid: { color: 'rgba(150, 150, 150, 0.1)' }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateTrendingPatterns(patterns) {
+            const container = document.getElementById('trendingPatterns');
+
+            if (!patterns || !patterns.total_last_24h) {
+                container.innerHTML = '<div class="col-12 text-center text-custom-subtle"><p>No data from last 24 hours. Run some analyses!</p></div>';
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="col-md-2 mb-3">
+                    <div class="result-box">
+                        <div class="text-custom-subtle small">Scans (24h)</div>
+                        <div class="fs-3 fw-bold" style="color: var(--text-color);">${patterns.total_last_24h}</div>
+                    </div>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <div class="result-box">
+                        <div class="text-custom-subtle small">Avg Risk</div>
+                        <div class="fs-3 fw-bold text-warning">${patterns.average_risk_score}%</div>
+                    </div>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <div class="result-box">
+                        <div class="text-custom-subtle small">URLs</div>
+                        <div class="fs-3 fw-bold" style="color: var(--text-color);">${patterns.urls_detected}</div>
+                    </div>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <div class="result-box">
+                        <div class="text-custom-subtle small">Urgency</div>
+                        <div class="fs-3 fw-bold text-danger">${patterns.urgency_tactics}</div>
+                    </div>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <div class="result-box">
+                        <div class="text-custom-subtle small">Financial</div>
+                        <div class="fs-3 fw-bold text-danger">${patterns.financial_terms}</div>
+                    </div>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <div class="result-box">
+                        <div class="text-custom-subtle small">Threats</div>
+                        <div class="fs-3 fw-bold text-danger">${patterns.threats_detected}</div>
+                    </div>
+                </div>
+                `;
+        }
+
+        function updateGlobalRisk(avgRisk, providedThreatLevel, providedSource) {
+            const needle = document.getElementById('globalRiskNeedle');
+            const label = document.getElementById('globalRiskLabel');
+            const threatLevelTop = document.getElementById('threatLevelTextTop');
+            const threatLevelIconTop = document.getElementById('threatLevelIconTop');
+            const threatLevelCard = document.querySelector('.threat-level-card');
+            const sourceDisplay = document.getElementById('globalRiskSource');
+
+            if (!needle || !label || !threatLevelTop) return;
+
+            if (providedSource && sourceDisplay) {
+                sourceDisplay.innerHTML = `<i class="bi bi-info-circle me-1"></i> Data from: <strong>${providedSource}</strong>`;
+            }
+
+            // Map 0-100 score to -90 to +90 degrees
+            const score = Math.min(Math.max(avgRisk, 0), 100);
+            const angle = (score / 100) * 180 - 90;
+
+            // Add bounce animation by first pulling back slightly then going to target
+            needle.style.transition = 'transform 2s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+            needle.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+
+            let threatCategory = providedThreatLevel || 'LOW';
+            let colorClass = 'text-success';
+            let iconClass = 'bi-shield-check';
+            let cardBg = 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(52, 211, 153, 0.1) 100%)';
+            let cardBorder = 'rgba(16, 185, 129, 0.3)';
+
+            if (score >= 70) {
+                colorClass = 'text-danger';
+                iconClass = 'bi-exclamation-octagon-fill';
+                cardBg = 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(185, 28, 28, 0.1) 100%)';
+                cardBorder = 'rgba(239, 68, 68, 0.3)';
+            } else if (score >= 40) {
+                colorClass = 'text-warning';
+                iconClass = 'bi-exclamation-triangle-fill';
+                cardBg = 'linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(239, 68, 68, 0.1) 100%)';
+                cardBorder = 'rgba(245, 158, 11, 0.3)';
+            }
+
+            label.textContent = threatCategory;
+            label.className = `speedometer-label mt-4 ${colorClass}`;
+
+            threatLevelTop.textContent = threatCategory;
+            threatLevelTop.className = `fs-4 fw-bolder ${colorClass}`;
+
+            if (threatLevelIconTop) {
+                threatLevelIconTop.className = `bi ${iconClass} fs-3 me-3 badge-pulse ${colorClass}`;
+            }
+
+            if (threatLevelCard) {
+                threatLevelCard.style.background = cardBg;
+                threatLevelCard.style.borderColor = cardBorder;
+            }
+        }
+
+        function updateRecentReports(reports) {
+            const container = document.getElementById('recentReports');
+
+            if (!reports || reports.length === 0) {
+                container.innerHTML = '<p class="text-custom-subtle">No recent activity. Start scanning!</p>';
+                return;
+            }
+
+            let html = '<div class="list-group">';
+            reports.forEach(report => {
+                const riskColor = report.risk_level === 'Scam' ? 'danger' : report.risk_level === 'Suspicious' ? 'warning' : 'success';
+                const timestamp = new Date(report.timestamp).toLocaleString();
+
+                let sourceIcon = '📝';
+                if (report.source === 'image') sourceIcon = '📸';
+                else if (report.source === 'url') sourceIcon = '🔗';
+                let displayLanguage = report.language;
+                if (report.language_code && report.language_code !== 'unknown') {
+                    try {
+                        const names = new Intl.DisplayNames(['en'], { type: 'language' });
+                        const formattedName = names.of(report.language_code);
+                        displayLanguage = formattedName.charAt(0).toUpperCase() + formattedName.slice(1);
+                    } catch (e) { }
+                }
+
+                html += `
+                    <div class="list-group-item bg-transparent mb-2" style="border: 1px solid var(--result-border); border-radius: 10px; color: var(--text-color);">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="me-2 fs-5" title="Source: ${report.source}">${sourceIcon}</span>
+                                <span class="badge bg-${riskColor}">${report.risk_level}</span>
+                                <span class="ms-2">${displayLanguage}</span>
+                                <span class="small text-custom-subtle">${timestamp}</span>
+                            </div>
+                            <div>
+                                <span class="badge bg-secondary">${report.risk_score}% risk</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+
+            container.innerHTML = html;
+        }
+
+        // Trend Scams Detected Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const ctxTrend = document.getElementById('scamsTrendChart');
+            const timeRangeSelect = document.getElementById('trendTimeRange');
+            let trendChart = null;
+
+            async function updateTrendChart(days) {
+                try {
+                    const res = await fetch(`/api/daily-distribution?days=${days}`);
+                    const dailyData = await res.json();
+
+                    const today = new Date();
+                    let labels = [];
+                    let data = [];
+
+                    for (let i = days - 1; i >= 0; i--) {
+                        let d = new Date(today);
+                        d.setDate(today.getDate() - i);
+                        labels.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+
+                        // Local timezone to yyyy-mm-dd format safely
+                        let month = '' + (d.getMonth() + 1);
+                        let day = '' + d.getDate();
+                        let year = d.getFullYear();
+                        if (month.length < 2) month = '0' + month;
+                        if (day.length < 2) day = '0' + day;
+                        const yyyymmdd = [year, month, day].join('-');
+
+                        data.push(dailyData[yyyymmdd] || 0);
+                    }
+
+                    if (trendChart) {
+                        trendChart.destroy();
+                    }
+
+                    if (ctxTrend) {
+                        trendChart = new Chart(ctxTrend.getContext('2d'), {
+                            type: 'line',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: 'Scams Detected',
+                                    data: data,
+                                    borderColor: '#ef4444',
+                                    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                                    borderWidth: 3,
+                                    fill: true,
+                                    tension: 0.4
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: { display: false },
+                                    tooltip: { mode: 'index', intersect: false }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        grid: { color: 'rgba(150, 150, 150, 0.1)' },
+                                        ticks: { color: 'rgba(150, 150, 150, 0.8)' }
+                                    },
+                                    x: {
+                                        grid: { display: false },
+                                        ticks: { color: 'rgba(150, 150, 150, 0.8)' }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.error("Failed to load trend chart data", e);
+                }
+            }
+
+            // Initial render
+            updateTrendChart(7);
+
+            // Handle dropdown change
+            if (timeRangeSelect) {
+                timeRangeSelect.addEventListener('change', (e) => {
+                    updateTrendChart(parseInt(e.target.value));
+                });
+            }
+        });
+
+        // Initialize dashboard
+        loadDashboard();
+
+        // Refresh every 30 seconds
+        setInterval(loadDashboard, 30000);
+
+        // Dark Mode Toggle Logic
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+
+        const savedTheme = localStorage.getItem('prism-theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            if (themeIcon) {
+                themeIcon.className = 'bi bi-sun-fill text-warning';
+            }
+        }
+
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', () => {
+                const currentTheme = document.body.getAttribute('data-theme');
+                let newTheme = 'dark';
+
+                if (currentTheme === 'dark') {
+                    newTheme = 'light';
+                    document.body.removeAttribute('data-theme');
+                    if (themeIcon) themeIcon.className = 'bi bi-moon-fill';
+                } else {
+                    document.body.setAttribute('data-theme', 'dark');
+                    if (themeIcon) themeIcon.className = 'bi bi-sun-fill text-warning';
+                }
+                localStorage.setItem('prism-theme', newTheme);
+            });
+        }
+
+        // Sticky Navbar Shrink
+        window.addEventListener('scroll', function () {
+            const navbar = document.querySelector('.navbar');
+            if (navbar) {
+                if (window.scrollY > 30) {
+                    navbar.classList.add('navbar-shrink');
+                } else {
+                    navbar.classList.remove('navbar-shrink');
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

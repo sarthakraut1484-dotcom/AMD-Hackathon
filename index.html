@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRISM - AI Scam Detector</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description"
+        content="Privacy-First Multilingual AI System for Real-Time Scam Detection. Detect scams in 22+ Indian languages instantly.">
+    <meta name="keywords" content="scam detection, AI, multilingual, privacy, cybersecurity">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=8">
+</head>
+
+<body>
+    <!-- Main Container -->
+    <div class="container-fluid main-container">
+        <!-- Header -->
+        <!-- Navigation Bar -->
+        <nav class="navbar navbar-expand-lg navbar-light fixed-top glass-card mx-3 mt-3" style="border-radius: 15px;">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold fs-3" href="/">
+                    <span class="shield-icon" style="font-size: 1.8rem;">🛡️</span>
+                    <span class="text-gradient">PRISM</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto align-items-center fw-semibold">
+                        <li class="nav-item mx-1">
+                            <a class="nav-link active" href="/">Scanner</a>
+                        </li>
+                        <li class="nav-item mx-1">
+                            <a class="nav-link" href="/dashboard">Dashboard</a>
+                        </li>
+                        <li class="nav-item mx-1">
+                            <a class="nav-link" href="#about">About</a>
+                        </li>
+                        <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
+                            <div class="status-indicator me-3 d-none d-lg-flex">
+                                <span class="status-dot"></span> System Active
+                            </div>
+                        </li>
+                        <li class="nav-item mt-2 mt-lg-0">
+                            <button id="darkModeToggle"
+                                class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center"
+                                style="width: 32px; height: 32px; border: 1px solid var(--card-border);">
+                                <i class="bi bi-moon-fill" id="themeIcon"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Spacer for fixed navbar -->
+        <div style="height: 100px;"></div>
+
+        <!-- Hero Header -->
+        <header class="text-center py-4 mb-5 position-relative">
+            <div class="floating-bg"></div>
+            <div class="header-content p-5 z-10 position-relative">
+                <h1 class="display-3 mb-3 fw-bolder" style="font-weight: 800; letter-spacing: -1px; min-height: 80px;">
+                    <span class="text-gradient" id="typewriter">Detecting Scams...</span><span class="text-primary"
+                        style="animation: blink-cursor .75s step-end infinite;">|</span>
+                </h1>
+                <p class="lead mb-0 text-custom-subtle" style="font-size: 1.3rem;">Privacy-First Multilingual System for
+                    Real-Time Protection</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="row justify-content-center">
+            <div class="col-lg-8 col-xl-7">
+                <!-- Input Card with Tabs -->
+                <div class="card glass-card mb-4">
+                    <div class="card-body p-4">
+                        <!-- Tab Navigation -->
+                        <div class="d-flex justify-content-center w-100 mb-4">
+                            <ul class="nav nav-pills" id="analysisTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="text-tab" data-bs-toggle="pill"
+                                        data-bs-target="#text-panel" type="button">
+                                        📝 Text Message
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="image-tab" data-bs-toggle="pill"
+                                        data-bs-target="#image-panel" type="button">
+                                        📸 Screenshot
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Tab Content -->
+                        <div class="tab-content" id="analysisTabContent">
+                            <!-- Text Analysis Tab -->
+                            <div class="tab-pane fade show active" id="text-panel" role="tabpanel">
+                                <h2 class="h4 mb-4 text-center">
+                                    <span class="emoji">📝</span> Enter Message to Analyze
+                                </h2>
+
+                                <form id="analyzeForm">
+                                    <div class="mb-3">
+                                        <textarea id="messageInput" class="form-control message-input" rows="6"
+                                            placeholder="Example: URGENT! Your bank account will be suspended. Click here to verify immediately."
+                                            required></textarea>
+                                        <div id="charCount" class="text-end small text-custom-subtle mt-1">0 characters
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-center">
+                                        <button type="submit" class="btn btn-primary btn-sm px-5 py-2 fs-6 rounded-pill"
+                                            id="analyzeBtn">
+                                            <i class="bi bi-search me-2"></i> Analyze Message
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Image Analysis Tab -->
+                            <div class="tab-pane fade" id="image-panel" role="tabpanel">
+                                <h2 class="h4 mb-4 text-center">
+                                    <span class="emoji">📸</span> Upload Screenshot
+                                </h2>
+
+                                <form id="imageForm">
+                                    <div class="mb-4">
+                                        <div class="image-upload-area" id="imageUploadArea">
+                                            <div class="upload-placeholder" id="uploadPlaceholder">
+                                                <i class="bi bi-cloud-arrow-up display-4 mb-3 text-primary d-block"></i>
+                                                <p class="mb-2 fw-semibold fs-5">Drag & drop an image here</p>
+                                                <p class="small text-custom-subtle mb-0">or click to browse</p>
+                                                <p class="small text-custom-subtle mt-2">Supports: JPG, PNG, WebP (Max
+                                                    16MB)</p>
+                                            </div>
+                                            <img id="imagePreview" class="image-preview" style="display: none;"
+                                                alt="Preview" />
+                                        </div>
+                                        <input type="file" id="imageInput" accept="image/*" class="d-none" />
+                                    </div>
+
+                                    <div class="d-flex justify-content-center">
+                                        <button type="submit" class="btn btn-primary btn-sm px-5 py-2 fs-6 rounded-pill"
+                                            id="analyzeImageBtn" disabled>
+                                            <i class="bi bi-search me-2"></i> Analyze Screenshot
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Scan History Mini-Panel -->
+                        <div class="mt-4 pt-3 border-top border-custom-subtle border-opacity-25 text-start">
+                            <h6 class="text-custom-subtle mb-3 fw-semibold"><i class="bi bi-clock-history me-1"></i>
+                                Recent Scans (Global Live Feed)</h6>
+                            <div id="localScanHistory" class="list-group list-group-flush gap-2 scroll-hide"
+                                style="max-height: 150px; overflow-y: auto;">
+                                <!-- Placeholders to simulate intelligence -->
+                                <div
+                                    class="list-group-item bg-transparent border rounded p-2 text-custom-subtle small d-flex justify-content-between align-items-center hover-lift">
+                                    <span><i class="bi bi-shield-check text-success me-2"></i> English | Safe</span>
+                                    <span class="opacity-75">5 min ago</span>
+                                </div>
+                                <div
+                                    class="list-group-item bg-transparent border rounded p-2 text-custom-subtle small d-flex justify-content-between align-items-center hover-lift">
+                                    <span><i class="bi bi-shield-exclamation text-danger badge-pulse me-2"></i> Hindi |
+                                        Suspicious</span>
+                                    <span class="opacity-75">12 min ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading Skeleton -->
+                <div id="loadingSpinner" class="my-5" style="display: none;">
+                    <div class="card glass-card mb-4 skeleton-card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center justify-content-center mb-4 text-center">
+                                <div class="spinner-border text-primary me-3" role="status"
+                                    style="width: 2rem; height: 2rem;"></div>
+                                <h3 class="h4 mb-0 text-primary scanning-text d-inline-block m-0">Scanning with AI</h3>
+                            </div>
+                            <div class="skeleton-title mb-4"></div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="skeleton-box" style="height: 80px;"></div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="skeleton-box" style="height: 80px;"></div>
+                                </div>
+                            </div>
+                            <div class="skeleton-bar my-4"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Container -->
+                <div id="resultsContainer" style="display: none;">
+                    <!-- Risk Overview -->
+                    <div class="card glass-card mb-4">
+                        <div class="card-body p-4">
+                            <h3 class="h5 mb-4">📊 Analysis Results</h3>
+
+                            <div class="row align-items-stretch">
+                                <div class="col-md-6 mb-3">
+                                    <div class="result-box h-100 d-flex flex-column justify-content-center">
+                                        <label class="small text-custom-subtle">Risk Level</label>
+                                        <div id="riskLevel" class="fs-2 fw-bold"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="result-box h-100 d-flex flex-column justify-content-center">
+                                        <label class="small text-custom-subtle">Detected Language</label>
+                                        <div id="detectedLanguage" class="fs-4"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Circular Risk Score -->
+                            <div class="my-4 text-center">
+                                <label class="small text-custom-subtle mb-3 d-block">Overall Risk Score</label>
+                                <div class="position-relative d-inline-block" style="width: 150px; height: 150px;">
+                                    <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                                        <path d="M18 2.0845
+                                            a 15.9155 15.9155 0 0 1 0 31.831
+                                            a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--card-border)"
+                                            stroke-width="3" />
+                                        <path id="riskScoreCircle" stroke-dasharray="0, 100" d="M18 2.0845
+                                            a 15.9155 15.9155 0 0 1 0 31.831
+                                            a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--bs-success)"
+                                            stroke-width="3" stroke-linecap="round"
+                                            style="transition: stroke-dasharray 1.5s ease-out, stroke 0.5s;" />
+                                    </svg>
+                                    <div
+                                        class="position-absolute top-50 start-50 translate-middle d-flex flex-column align-items-center">
+                                        <span id="riskScoreValue" class="fw-bold fs-2 text-gradient"
+                                            style="line-height: 1;">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Combined Confidence Chart -->
+                            <div class="row mt-4">
+                                <div class="col-12 text-center">
+                                    <label class="small text-custom-subtle mb-3 d-block">Confidence Breakdown</label>
+                                    <div class="position-relative d-inline-block" style="width: 140px; height: 140px;">
+                                        <div id="confidenceDonut"
+                                            style="width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(#ef4444 0% 0%, #10b981 0% 100%); transition: background 1s ease;">
+                                        </div>
+                                        <div class="position-absolute top-50 start-50 translate-middle rounded-circle d-flex flex-column align-items-center justify-content-center"
+                                            style="width: 110px; height: 110px; background: var(--card-bg);">
+                                            <div class="d-flex flex-column align-items-center">
+                                                <span class="fs-6 fw-bold text-danger mb-1" title="Scam Confidence"><i
+                                                        class="bi bi-shield-x"></i> <span
+                                                        id="scamConfidenceValue">0%</span></span>
+                                                <span class="fs-6 fw-bold text-success" title="Safe Confidence"><i
+                                                        class="bi bi-shield-check"></i> <span
+                                                        id="safeConfidenceValue">0%</span></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Message Statistics -->
+                    <div class="card glass-card mb-4">
+                        <div class="card-body p-4">
+                            <h3 class="h5 mb-4">📊 Message Statistics</h3>
+                            <div class="row text-center">
+                                <div class="col-6 col-md-3 mb-3">
+                                    <div class="stat-card">
+                                        <div class="stat-value" id="statCharacters">0</div>
+                                        <div class="stat-label">Characters</div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3 mb-3">
+                                    <div class="stat-card">
+                                        <div class="stat-value" id="statWords">0</div>
+                                        <div class="stat-label">Words</div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3 mb-3">
+                                    <div class="stat-card">
+                                        <div class="stat-value" id="statUrls">0</div>
+                                        <div class="stat-label">URLs</div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3 mb-3">
+                                    <div class="stat-card">
+                                        <div class="stat-value" id="statPhones">0</div>
+                                        <div class="stat-label">Phone Numbers</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Explanation -->
+                    <div class="card glass-card mb-4">
+                        <div class="card-body p-4">
+                            <h3 class="h5 mb-3">💡 Explanation</h3>
+                            <p id="explanationText" class="mb-0"></p>
+                        </div>
+                    </div>
+
+                    <!-- Detected Indicators -->
+                    <div id="indicatorsSection" class="card glass-card mb-4" style="display: none;">
+                        <div class="card-body p-4">
+                            <h3 class="h5 mb-4">🔍 Detected Indicators</h3>
+
+                            <div id="keywordsSection" style="display: none;">
+                                <h6 class="mb-3">Suspicious Keywords:</h6>
+                                <div id="keywordsList" class="mb-4"></div>
+                            </div>
+
+                            <div id="urlsSection" style="display: none;">
+                                <h6 class="mb-2">Suspicious Links:</h6>
+                                <ul id="urlsList" class="list-unstyled mb-4"></ul>
+                            </div>
+
+                            <div id="phonesSection" style="display: none;">
+                                <h6 class="mb-2">Phone Numbers:</h6>
+                                <ul id="phonesList" class="list-unstyled mb-0"></ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risk Indicators -->
+                    <div class="card glass-card mb-4">
+                        <div class="card-body p-4">
+                            <h3 class="h5 mb-4">📈 Risk Indicators Summary</h3>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <div class="indicator-item">
+                                        <span class="indicator-label">Urgency Tactics</span>
+                                        <span id="indUrgency" class="indicator-value"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="indicator-item">
+                                        <span class="indicator-label">Financial Terms</span>
+                                        <span id="indFinancial" class="indicator-value"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="indicator-item">
+                                        <span class="indicator-label">Action Required</span>
+                                        <span id="indAction" class="indicator-value"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="indicator-item">
+                                        <span class="indicator-label">Threats</span>
+                                        <span id="indThreats" class="indicator-value"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="indicator-item">
+                                        <span class="indicator-label">Personal Info</span>
+                                        <span id="indPersonal" class="indicator-value"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="indicator-item">
+                                        <span class="indicator-label">Contains Links</span>
+                                        <span id="indLinks" class="indicator-value"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Privacy Notice -->
+        <div class="privacy-notice text-center py-3 my-5">
+            <p class="mb-0">🔒 Your privacy is protected: Messages are analyzed in real-time and never stored or logged.
+            </p>
+        </div>
+
+        <!-- Bento Grid Info Section -->
+        <section id="about" class="info-section py-5 my-3">
+            <div class="row g-4 px-3">
+                <!-- Large Card - Model Info -->
+                <div class="col-lg-8">
+                    <div class="bento-card h-100 p-4 p-md-5 d-flex flex-column justify-content-center border-0 shadow-lg"
+                        style="background: var(--card-bg); border-radius: 24px;">
+                        <div
+                            class="d-flex align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-10">
+                            <div class="icon-box me-3"><i class="bi bi-cpu fs-3 text-primary"></i></div>
+                            <h3 class="h4 mb-0 fw-bold">Enterprise AI Model</h3>
+                        </div>
+                        <div class="row align-items-center mt-2">
+                            <div class="col-md-7">
+                                <p class="mb-4 text-custom-subtle fs-5" style="line-height: 1.6;">Powered by <strong
+                                        class="text-body">DistilBERT Multilingual</strong>,
+                                    fine-tuned for high-precision threat detection across diverse linguistic patterns.
+                                </p>
+                                <div class="d-flex flex-wrap gap-2 mb-3">
+                                    <span class="badge px-3 py-2 rounded-pill border"
+                                        style="background: rgba(59, 130, 246, 0.1); color: var(--primary);">Hindi</span>
+                                    <span class="badge px-3 py-2 rounded-pill border"
+                                        style="background: rgba(59, 130, 246, 0.1); color: var(--primary);">Tamil</span>
+                                    <span class="badge px-3 py-2 rounded-pill border"
+                                        style="background: rgba(59, 130, 246, 0.1); color: var(--primary);">Telugu</span>
+                                    <span class="badge px-3 py-2 rounded-pill border"
+                                        style="background: rgba(59, 130, 246, 0.1); color: var(--primary);">Bengali</span>
+                                    <span class="badge px-3 py-2 rounded-pill border"
+                                        style="background: rgba(139, 92, 246, 0.1); color: var(--accent);">+18
+                                        more</span>
+                                </div>
+                            </div>
+                            <div class="col-md-5 mt-4 mt-md-0 d-flex justify-content-md-end justify-content-center">
+                                <div class="text-center p-4 rounded-4"
+                                    style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.1);">
+                                    <div class="display-3 fw-bolder text-primary mb-1">95<span class="fs-2">%+</span>
+                                    </div>
+                                    <div class="fw-bold text-custom-subtle uppercase-tracking mt-2 p-1 rounded bg-white shadow-sm"
+                                        style="font-size: 0.8rem; letter-spacing: 1.5px;">Accuracy Rate</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Small Card - About -->
+                <div class="col-lg-4">
+                    <div class="bento-card h-100 p-4 p-md-5 d-flex flex-column border-0 shadow-lg position-relative overflow-hidden"
+                        style="background: var(--card-bg); border-radius: 24px;">
+                        <div class="position-absolute opacity-10"
+                            style="right: -20px; top: -20px; transform: scale(3);">
+                            <i class="bi bi-lightning-charge-fill text-primary"></i>
+                        </div>
+                        <div class="icon-box mb-4 position-relative z-10"
+                            style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(239, 68, 68, 0.2) 100%); color: #f59e0b;">
+                            <i class="bi bi-lightning-charge-fill fs-3"></i>
+                        </div>
+                        <h3 class="h4 mb-3 fw-bold position-relative z-10">Instant Detection</h3>
+                        <p class="text-custom-subtle mb-auto position-relative z-10 fs-6" style="line-height: 1.7;">
+                            Advanced AI analyzes text and identifies threats in
+                            milliseconds, providing real-time protection and detailed explanations for every scan.</p>
+                    </div>
+                </div>
+
+                <!-- Wide Card - Privacy -->
+                <div class="col-lg-12">
+                    <div class="bento-card privacy-card p-4 p-md-5 shadow-lg border-0" style="border-radius: 24px;">
+                        <div class="row align-items-center">
+                            <div class="col-md-3 text-center mb-4 mb-md-0">
+                                <div class="shield-container position-relative d-inline-block">
+                                    <i class="bi bi-shield-check display-1 text-success position-relative z-10"></i>
+                                    <div class="glow-effect bg-success position-absolute"
+                                        style="width: 150px; height: 150px; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.2; filter: blur(50px);">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-9 px-md-4">
+                                <h3 class="h2 fw-bold mb-3 d-flex align-items-center">
+                                    Privacy First Architecture
+                                    <span
+                                        class="badge bg-success ms-3 rounded-pill fs-6 px-3 py-2 shadow-sm d-flex align-items-center"><i
+                                            class="bi bi-check2-circle me-2 fs-5"></i> Verified</span>
+                                </h3>
+                                <p class="text-custom-subtle fs-5 mb-4 opacity-75">Your data never leaves the system.
+                                    All analysis
+                                    is performed entirely in-memory.</p>
+                                <div class="row g-4 mt-1">
+                                    <div class="col-sm-6 col-md-3">
+                                        <div class="d-flex flex-column align-items-start p-3 rounded-3 bg-opacity-10"
+                                            style="background: rgba(59,130,246,0.05);">
+                                            <i class="bi bi-hdd-network text-primary mb-2 display-6"></i>
+                                            <span class="fw-bold">Zero Storage</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-md-3">
+                                        <div class="d-flex flex-column align-items-start p-3 rounded-3 bg-opacity-10"
+                                            style="background: rgba(59,130,246,0.05);">
+                                            <i class="bi bi-journal-x text-primary mb-2 display-6"></i>
+                                            <span class="fw-bold">No Logging</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-md-3">
+                                        <div class="d-flex flex-column align-items-start p-3 rounded-3 bg-opacity-10"
+                                            style="background: rgba(59,130,246,0.05);">
+                                            <i class="bi bi-memory text-primary mb-2 display-6"></i>
+                                            <span class="fw-bold">In-Memory</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-md-3">
+                                        <div class="d-flex flex-column align-items-start p-3 rounded-3 bg-opacity-10"
+                                            style="background: rgba(16,185,129,0.05);">
+                                            <i class="bi bi-lock-fill text-success mb-2 display-6"></i>
+                                            <span class="fw-bold">Fully Secure</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center py-4">
+            <p class="mb-2">Built with ❤️ for AI + Cybersecurity & Privacy Hackathon</p>
+            <p class="small opacity-75">Powered by <strong>DistilBERT Multilingual</strong> • <strong>HuggingFace
+                    Transformers</strong> • <strong>Flask</strong></p>
+        </footer>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='script.js') }}?v=8"></script>
+    <script>
+        // Typewriter Effect
+        document.addEventListener('DOMContentLoaded', () => {
+            const phrases = ["Detecting Scams...", "Analyzing Messages...", "Protecting Data...", "AI Scam Detector"];
+            let phraseCount = 0;
+            let charIndex = 0;
+            let isDeleting = false;
+            let currentText = '';
+
+            function type() {
+                const el = document.getElementById('typewriter');
+                if (!el) return;
+
+                const fullText = phrases[phraseCount];
+
+                if (isDeleting) {
+                    currentText = fullText.substring(0, charIndex - 1);
+                    charIndex--;
+                } else {
+                    currentText = fullText.substring(0, charIndex + 1);
+                    charIndex++;
+                }
+
+                el.textContent = currentText;
+
+                let typeSpeed = isDeleting ? 50 : 100;
+
+                if (!isDeleting && currentText === fullText) {
+                    typeSpeed = 2000;
+                    isDeleting = true;
+                } else if (isDeleting && currentText === '') {
+                    isDeleting = false;
+                    phraseCount = (phraseCount + 1) % phrases.length;
+                    typeSpeed = 500;
+                }
+
+                setTimeout(type, typeSpeed);
+            }
+
+            setTimeout(type, 500);
+        });
+    </script>
+</body>
+
+</html>

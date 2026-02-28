@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRISM - AI Scam Detector</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Privacy-First Multilingual AI System for Real-Time Scam Detection. Detect scams in 22+ Indian languages instantly.">
+    <meta name="keywords" content="scam detection, AI, multilingual, privacy, cybersecurity">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="container-fluid main-container">
+        <!-- Header -->
+        <header class="text-center py-5 mb-4">
+            <div class="header-content">
+                <h1 class="display-3 fw-bold mb-3">
+                    <span class="shield-icon">🛡️</span> PRISM
+                </h1>
+                <p class="lead">Privacy-First Multilingual AI System for Real-Time Scam Detection</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="row justify-content-center">
+            <div class="col-lg-8 col-xl-7">
+                <!-- Input Card -->
+                <div class="card glass-card mb-4">
+                    <div class="card-body p-4">
+                        <h2 class="h4 mb-4 text-center">
+                            <span class="emoji">📝</span> Enter Message to Analyze
+                        </h2>
+                        
+                        <form id="analyzeForm">
+                            <div class="mb-4">
+                                <textarea 
+                                    id="messageInput" 
+                                    class="form-control message-input" 
+                                    rows="6" 
+                                    placeholder="Example: URGENT! Your bank account will be suspended. Click here to verify immediately."
+                                    required
+                                ></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-lg w-100" id="analyzeBtn">
+                                <span class="btn-icon">🔍</span> Analyze Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Loading Spinner -->
+                <div id="loadingSpinner" class="text-center my-5" style="display: none;">
+                    <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-light">🔄 Analyzing message...</p>
+                </div>
+
+                <!-- Results Container -->
+                <div id="resultsContainer" style="display: none;">
+                    <!-- Risk Overview -->
+                    <div class="card glass-card mb-4">
+                        <div class="card-body p-4">
+                            <h3 class="h5 mb-4">📊 Analysis Results</h3>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="result-box">
+                                        <label class="small text-light-subtle">Risk Level</label>
+                                        <div id="riskLevel" class="fs-2 fw-bold"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="result-box">
+                                        <label class="small text-light-subtle">Detected Language</label>
+                                        <div id="detectedLanguage" class="fs-4"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Risk Score Gauge -->
+                            <div class="my-4">
+                                <label class="small text-light-subtle mb-2">Risk Score</label>
+                                <div class="progress" style="height: 30px;">
+                                    <div id="riskScoreBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <div class="text-end mt-2">
+                                    <span id="riskScoreValue" class="fw-bold fs-5"></span>
+                                </div>
+                            </div>
+
+                            <!-- Confidence Scores -->
+                            <div class="row mt-4">
+                                <div class="col-md-6 mb-3">
+                                    <label class="small text-light-subtle">Scam Confidence</label>
+                                    <div class="progress" style="height: 25px;">
+                                        <div id="scamConfidence" class="progress-bar bg-danger" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                    <div class="text-end mt-1">
+                                        <span id="scamConfidenceValue" class="fw-semibold"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="small text-light-subtle">Safe Confidence</label>
+                                    <div class="progress" style="height: 25px;">
+                                        <div id="safeConfidence" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                    <div class="text-end mt-1">
+                                        <span id="safeConfidenceValue" class="fw-semibold"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Message Statistics -->
+                    <div class="card glass-card mb-4">
+                        <div class="card-body p-4">
+                            <h3 class="h5 mb-4">📊 Message Statistics</h3>
+                            <div class="row text-center">
+                                <div class="col-6 col-md-3 mb-3">
+                                    <div class="stat-card">
+                                        <div class="stat-value" id="statCharacters">0</div>
+                                        <div class="stat-label">Characters</div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3 mb-3">
+                                    <div class="stat-card">
+                                        <div class="stat-value" id="statWords">0</div>
+                                        <div class="stat-label">Words</div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3 mb-3">
+                                    <div class="stat-card">
+                                        <div class="stat-value" id="statUrls">0</div>
+                                        <div class="stat-label">URLs</div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3 mb-3">
+                                    <div class="stat-card">
+                                        <div class="stat-value" id="statPhones">0</div>
+                                        <div class="stat-label">Phone Numbers</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Explanation -->
+                    <div class="card glass-card mb-4">
+                        <div class="card-body p-4">
+                            <h3 class="h5 mb-3">💡 Explanation</h3>
+                            <p id="explanationText" class="mb-0"></p>
+                        </div>
+                    </div>
+
+                    <!-- Detected Indicators -->
+                    <div id="indicatorsSection" class="card glass-card mb-4" style="display: none;">
+                        <div class="card-body p-4">
+                            <h3 class="h5 mb-4">🔍 Detected Indicators</h3>
+                            
+                            <div id="keywordsSection" style="display: none;">
+                                <h6 class="mb-3">Suspicious Keywords:</h6>
+                                <div id="keywordsList" class="mb-4"></div>
+                            </div>
+
+                            <div id="urlsSection" style="display: none;">
+                                <h6 class="mb-2">Suspicious Links:</h6>
+                                <ul id="urlsList" class="list-unstyled mb-4"></ul>
+                            </div>
+
+                            <div id="phonesSection" style="display: none;">
+                                <h6 class="mb-2">Phone Numbers:</h6>
+                                <ul id="phonesList" class="list-unstyled mb-0"></ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risk Indicators -->
+                    <div class="card glass-card mb-4">
+                        <div class="card-body p-4">
+                            <h3 class="h5 mb-4">📈 Risk Indicators Summary</h3>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <div class="indicator-item">
+                                        <span class="indicator-label">Urgency Tactics</span>
+                                        <span id="indUrgency" class="indicator-value"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="indicator-item">
+                                        <span class="indicator-label">Financial Terms</span>
+                                        <span id="indFinancial" class="indicator-value"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="indicator-item">
+                                        <span class="indicator-label">Action Required</span>
+                                        <span id="indAction" class="indicator-value"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="indicator-item">
+                                        <span class="indicator-label">Threats</span>
+                                        <span id="indThreats" class="indicator-value"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="indicator-item">
+                                        <span class="indicator-label">Personal Info</span>
+                                        <span id="indPersonal" class="indicator-value"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="indicator-item">
+                                        <span class="indicator-label">Contains Links</span>
+                                        <span id="indLinks" class="indicator-value"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Privacy Notice -->
+        <div class="privacy-notice text-center py-3 my-5">
+            <p class="mb-0">🔒 Your privacy is protected: Messages are analyzed in real-time and never stored or logged.</p>
+        </div>
+
+        <!-- Info Section -->
+        <section class="info-section py-5">
+            <div class="row">
+                <div class="col-md-4 mb-4 text-center">
+                    <div class="info-card p-4">
+                        <div class="info-icon mb-3">ℹ️</div>
+                        <h3 class="h5 mb-3">About PRISM</h3>
+                        <p class="mb-3">Advanced AI for real-time scam detection</p>
+                        <ul class="list-unstyled text-start">
+                            <li>🌐 22+ Indian Languages</li>
+                            <li>🔒 100% Private</li>
+                            <li>⚡ Instant Detection</li>
+                            <li>🎯 AI Explained</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4 text-center">
+                    <div class="info-card p-4">
+                        <div class="info-icon mb-3">📊</div>
+                        <h3 class="h5 mb-3">Model Info</h3>
+                        <p class="mb-3"><strong>DistilBERT</strong> Multilingual</p>
+                        <p class="mb-3">Hindi • Tamil • Telugu • Bengali<br>Marathi • Gujarati • Kannada + more</p>
+                        <p class="mb-0"><strong class="fs-4 text-success">95%+</strong> Accuracy</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4 text-center">
+                    <div class="info-card p-4">
+                        <div class="info-icon mb-3">🔐</div>
+                        <h3 class="h5 mb-3">Privacy First</h3>
+                        <ul class="list-unstyled">
+                            <li>✅ In-Memory Only</li>
+                            <li>✅ Zero Storage</li>
+                            <li>✅ No Logging</li>
+                            <li>✅ Fully Secure</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center py-4">
+            <p class="mb-2">Built with ❤️ for AI + Cybersecurity & Privacy Hackathon</p>
+            <p class="small opacity-75">Powered by <strong>DistilBERT Multilingual</strong> • <strong>HuggingFace Transformers</strong> • <strong>Flask</strong></p>
+        </footer>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
